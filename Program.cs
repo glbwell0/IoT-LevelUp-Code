@@ -23,7 +23,6 @@ namespace SimulatedDevice
     /// </summary>
     internal class Program
     {
-
         static string dps_GlobalDeviceEndpoint = "global.azure-devices-provisioning.net";
         static string dps_IdScope = "<Enter the Scope ID from DPS>";
         static string dps_RegistrationID = "SimulatedDeviceRegistration";
