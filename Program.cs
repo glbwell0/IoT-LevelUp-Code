@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 // This application was adapted from the Azure IoT Hub device SDK for .NET
@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices.Provisioning.Client;
+using Microsoft.Azure.Devices.Provisioning.Client.Transport;
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 
@@ -21,13 +23,21 @@ namespace SimulatedDevice
     /// </summary>
     internal class Program
     {
+
+        static string dps_GlobalDeviceEndpoint = "global.azure-devices-provisioning.net";
+        static string dps_IdScope = "<Enter the Scope ID from DPS>";
+        static string dps_RegistrationID = "SimulatedDeviceRegistration";
+        static string dps_PrimaryKey = "<Enter the Primary Key from the Device Enrollment>";
+
+        static string deviceConnectionString = "";
+
         static int _intervalFrequency = 3;
 
         private static async Task Main(string[] args)
         {
-            string deviceConnectionString = "<Paste your device connection string here>";
-
             Console.WriteLine("IoT Hub Quickstarts #1 - Simulated device.");
+
+            await ProvisionIoTDevice();
 
             // Connect to the IoT hub using the MQTT protocol by default
             using var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
@@ -54,6 +64,48 @@ namespace SimulatedDevice
             await deviceClient.CloseAsync();
 
             Console.WriteLine("Device simulator finished.");
+        }
+
+        public static async Task ProvisionIoTDevice()
+        {
+            // For group enrollments, the second parameter must be the derived device key.
+            // See the ComputeDerivedSymmetricKeySample for how to generate the derived key.
+            // The secondary key could be included, but was left out for the simplicity of this sample.
+            using var security = new SecurityProviderSymmetricKey(
+                dps_RegistrationID,
+                dps_PrimaryKey,
+                null);
+
+            using ProvisioningTransportHandler transportHandler = new ProvisioningTransportHandlerMqtt();
+
+            var provClient = ProvisioningDeviceClient.Create(
+                dps_GlobalDeviceEndpoint,
+                dps_IdScope,
+                security,
+                transportHandler);
+
+            DeviceRegistrationResult result = await provClient.RegisterAsync();
+
+            if (result.Status != ProvisioningRegistrationStatusType.Assigned)
+            {
+                Console.WriteLine($"Registration status did not assign a hub, so exiting this sample.");
+                return;
+            }
+
+            IAuthenticationMethod auth = new DeviceAuthenticationWithRegistrySymmetricKey(
+                result.DeviceId,
+                security.GetPrimaryKey());
+
+            deviceConnectionString = $"HostName={result.AssignedHub};DeviceId={result.DeviceId};SharedAccessKey={security.GetPrimaryKey()}";
+
+//            using var iotClient = DeviceClient.Create(result.AssignedHub, auth, _parameters.TransportType);
+
+//            Console.WriteLine("Sending a telemetry message...");
+//            using var message = new Message(Encoding.UTF8.GetBytes("TestMessage"));
+//            await iotClient.SendEventAsync(message);
+
+//            await iotClient.CloseAsync();
+            Console.WriteLine("Finished.");
         }
 
         // Async method to send simulated telemetry
