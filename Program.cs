@@ -97,7 +97,8 @@ namespace SimulatedDevice
 
             deviceConnectionString = $"HostName={result.AssignedHub};DeviceId={result.DeviceId};SharedAccessKey={security.GetPrimaryKey()}";
 
-            Console.WriteLine("Finished.");
+            Console.WriteLine("Device Provisioned with Connection String:");
+            Console.WriteLine($"{deviceConnectionString}");
         }
 
         // Async method to send simulated telemetry
