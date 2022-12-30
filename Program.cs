@@ -97,13 +97,6 @@ namespace SimulatedDevice
 
             deviceConnectionString = $"HostName={result.AssignedHub};DeviceId={result.DeviceId};SharedAccessKey={security.GetPrimaryKey()}";
 
-//            using var iotClient = DeviceClient.Create(result.AssignedHub, auth, _parameters.TransportType);
-
-//            Console.WriteLine("Sending a telemetry message...");
-//            using var message = new Message(Encoding.UTF8.GetBytes("TestMessage"));
-//            await iotClient.SendEventAsync(message);
-
-//            await iotClient.CloseAsync();
             Console.WriteLine("Finished.");
         }
 
