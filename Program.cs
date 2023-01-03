@@ -26,7 +26,7 @@ namespace SimulatedDevice
         static string dps_GlobalDeviceEndpoint = "global.azure-devices-provisioning.net";
         static string dps_IdScope = "<Enter the Scope ID from DPS>";
         static string dps_RegistrationID = "SimulatedDeviceRegistration";
-        static string dps_PrimaryKey = "<Enter the Primary Key from the Device Enrollment>";
+        static string dps_PrimaryKey = "<Enter the DPS Primary Key from the Device Enrollment>";
 
         static string deviceConnectionString = "";
 
